@@ -1,18 +1,22 @@
-'use client';
+"use client";
+
 import { useState, useEffect } from 'react';
 import ExportarPDF from './ExportarPDF';
+
 const STORAGE_KEY = 'historialResúmenes';
+
 export default function ChatResumen() {
   const [nota, setNota] = useState('');
   const [resumen, setResumen] = useState('');
   const [cargando, setCargando] = useState(false);
   const [historial, setHistorial] = useState<string[]>([]);
+  const [pdfAuto, setPdfAuto] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setHistorial(JSON.parse(saved));
-    }
+    if (saved) setHistorial(JSON.parse(saved));
   }, []);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
   }, [historial]);
@@ -29,7 +33,8 @@ export default function ChatResumen() {
       const data = await res.json();
       const nuevoResumen = data.respuesta || 'No se pudo generar el resumen.';
       setResumen(nuevoResumen);
-      setHistorial((prev) => [nuevoResumen, ...prev]); 
+      setHistorial((prev) => [nuevoResumen, ...prev]);
+      setPdfAuto(true);
     } catch {
       setResumen('Ocurrió un error al generar el resumen.');
     } finally {
@@ -50,11 +55,16 @@ export default function ChatResumen() {
   const eliminarResumen = (index: number) => {
     const nuevoHistorial = historial.filter((_, i) => i !== index);
     setHistorial(nuevoHistorial);
-    // Si el que eliminó estaba cargado, lo limpiamos
     if (historial[index] === resumen) {
       setResumen('');
     }
   };
+
+  const abrirPDFEnNuevaPestaña = (url: string) => {
+    window.open(url, '_blank');
+    setPdfAuto(false); 
+  };
+
   return (
     <div className="flex min-h-screen text-white font-sans bg-[#0A0A2A]">
       <aside className="w-1/3 bg-[#0D0D3A] border-r border-blue-900 p-4 overflow-y-auto">
@@ -85,6 +95,7 @@ export default function ChatResumen() {
           </ul>
         )}
       </aside>
+
       <main className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto">
         <h1 className="text-3xl font-bold">Generar nuevo resumen</h1>
         <textarea
@@ -113,16 +124,23 @@ export default function ChatResumen() {
           >
             Nuevo Resumen
           </button>
+
           {resumen && !cargando && (
             <ExportarPDF texto={resumen} />
           )}
         </div>
 
         {resumen && (
-          <div className="bg-[#1C1C50] rounded p-4 shadow whitespace-pre-wrap text-lg mt-4">
-            <h2 className="text-xl font-semibold mb-2">Resumen generado:</h2>
-            <p>{resumen}</p>
-          </div>
+          <>
+            <div className="bg-[#1C1C50] rounded p-4 shadow whitespace-pre-wrap text-lg mt-4">
+              <h2 className="text-xl font-semibold mb-2">Resumen generado:</h2>
+              <p>{resumen}</p>
+            </div>
+
+            {pdfAuto && (
+              <ExportarPDF texto={resumen} auto onGenerado={abrirPDFEnNuevaPestaña} />
+            )}
+          </>
         )}
       </main>
     </div>

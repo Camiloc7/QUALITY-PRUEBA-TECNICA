@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleAuth } from 'google-auth-library';
 import axios from 'axios';
-
 const contextoSistema = `
-debes resumir el texto proporcionado
+debes resumir el texto proporcionado en una oración
 `;
-
 export async function POST(req: NextRequest) {
   try {
     const { texto } = await req.json();
@@ -34,7 +32,6 @@ ${contextoSistema}
 Usuario: ${texto}
 Asistente:
 `;
-
     const response = await axios.post(
       `https://${process.env.GOOGLE_CLOUD_REGION}-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_CLOUD_PROJECT_ID}/locations/${process.env.GOOGLE_CLOUD_REGION}/publishers/google/models/gemini-2.0-flash-001:generateContent`,
       {
@@ -52,11 +49,9 @@ Asistente:
         },
       }
     );
-
     const respuestaBot =
       response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
       'No entendí tu solicitud.';
-
     return NextResponse.json({ respuesta: respuestaBot });
   } catch (error) {
     console.error('❌ Error al generar contenido:', error);

@@ -1,24 +1,18 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-
 export default function ModalBienvenida() {
   const [mostrar, setMostrar] = useState(false);
-
   useEffect(() => {
     const yaMostrado = localStorage.getItem('bienvenidaVisto');
     if (!yaMostrado) {
       setMostrar(true);
     }
   }, []);
-
   const cerrarModal = () => {
     setMostrar(false);
     localStorage.setItem('bienvenidaVisto', 'true');
   };
-
   if (!mostrar) return null;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-[#0A0A2A] text-white max-w-lg w-full rounded-lg shadow-lg p-6 border border-blue-800">

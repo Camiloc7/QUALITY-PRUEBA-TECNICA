@@ -62,12 +62,12 @@ export default function ChatResumen() {
 
   const abrirPDFEnNuevaPestaña = (url: string) => {
     window.open(url, '_blank');
-    setPdfAuto(false); 
+    setPdfAuto(false);
   };
 
   return (
     <div className="flex min-h-screen text-white font-sans bg-[#0A0A2A]">
-      <aside className="w-1/3 bg-[#0D0D3A] border-r border-blue-900 p-4 overflow-y-auto">
+      <aside className="w-1/5 bg-[#0D0D3A] border-r border-blue-900 p-4 overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Resúmenes guardados</h2>
         {historial.length === 0 ? (
           <p className="text-gray-400">Aún no hay resúmenes.</p>
@@ -99,7 +99,7 @@ export default function ChatResumen() {
       <main className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto">
         <h1 className="text-3xl font-bold">Generar nuevo resumen</h1>
         <textarea
-          className="w-full h-40 p-4 rounded text-white text-base resize-none"
+          className="w-full h-150 mt-6 p-4 rounded text-white text-base resize-none"
           placeholder="Escribe o pega el texto que deseas resumir..."
           value={nota}
           onChange={(e) => setNota(e.target.value)}
@@ -109,11 +109,10 @@ export default function ChatResumen() {
           <button
             onClick={manejarResumen}
             disabled={!nota.trim() || cargando}
-            className={`px-6 py-2 rounded font-semibold ${
-              cargando
+            className={`px-6 py-2 rounded font-semibold ${cargando
                 ? 'bg-gray-600 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700'
-            }`}
+              }`}
           >
             {cargando ? 'Resumiendo...' : 'Resumir'}
           </button>

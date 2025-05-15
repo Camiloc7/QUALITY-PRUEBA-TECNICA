@@ -1,10 +1,13 @@
 'use client';
+import { useEffect } from 'react';
 import jsPDF from 'jspdf';
+
 interface Props {
   texto: string;
   auto?: boolean;
   onGenerado?: (url: string) => void;
 }
+
 export default function ExportarPDF({ texto, auto = false, onGenerado }: Props) {
   const generarPDF = () => {
     const doc = new jsPDF({
@@ -16,25 +19,20 @@ export default function ExportarPDF({ texto, auto = false, onGenerado }: Props) 
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
     const maxWidth = pageWidth - margin * 2;
-
     doc.setFillColor(24, 68, 150);
     doc.rect(0, 0, pageWidth, 20, 'F');
-
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('QUALITY SOFT SERVICE', pageWidth / 2, 13, { align: 'center' });
-
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text('Resumen Generado', pageWidth / 2, 35, { align: 'center' });
-
     doc.setFontSize(12);
     doc.setFont('times', 'normal');
     const lineas = doc.splitTextToSize(texto, maxWidth);
     doc.text(lineas, margin, 50);
-
     const blob = doc.output('blob');
     const url = URL.createObjectURL(blob);
 
@@ -45,8 +43,13 @@ export default function ExportarPDF({ texto, auto = false, onGenerado }: Props) 
     window.open(url, '_blank');
   };
 
+  useEffect(() => {
+    if (auto) {
+      generarPDF();
+    }
+  }, [auto, texto]);
+
   if (auto) {
-    generarPDF();
     return null;
   }
 

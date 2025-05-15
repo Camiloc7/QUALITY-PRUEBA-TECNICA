@@ -1,6 +1,3 @@
-from pathlib import Path
-
-readme_content = """
 # 📄 Quality - Prueba Técnica
 
 Este proyecto es una aplicación web que permite **resumir textos automáticamente** utilizando la API de Google Cloud Vertex AI (modelo Gemini). Al generar un resumen, este se puede guardar, visualizar y **exportar automáticamente como PDF** o de forma manual.
@@ -41,27 +38,32 @@ Este proyecto es una aplicación web que permite **resumir textos automáticamen
 ```bash
 git clone https://github.com/Camiloc7/QUALITY-PRUEBA-TECNICA.git
 cd QUALITY-PRUEBA-TECNICA
-
 ```
 
-### 2. Instala las dependencias
+### 2. Instalar dependencias
 
+```bash
 npm install
+```
 
-### 3. Configura las variables de entorno
+### 3. Configurar variables de entorno
 
-Crea un archivo llamado .env.local en la raíz del proyecto con el siguiente contenido:
+Crea un archivo llamado `.env.local` en la raíz del proyecto con el siguiente contenido:
 
+```env
 GOOGLE_CLOUD_PROJECT_ID=tu_project_id
 GOOGLE_CLOUD_REGION=us-central1
 
-# Pegue aquí el JSON completo de la cuenta de servicio en una sola línea
-GOOGLE_CREDENTIALS_JSON={"type":"service_account","project_id":"...","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n", ...}
+# Pega aquí el JSON completo de la cuenta de servicio en una sola línea
+GOOGLE_CREDENTIALS_JSON={"type":"service_account","project_id":"...","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n", ...}
+```
 
-### 4. Ejecuta el proyecto en modo desarrollo
+### 4. Ejecutar el proyecto en modo desarrollo
 
+```bash
 npm run dev
+```
 
+---
 
-
-Desarrollado por: Jhonatan Camilo Corredor Silva
+🧑‍💻 Desarrollado por: **Jhonatan Camilo Corredor Silva**

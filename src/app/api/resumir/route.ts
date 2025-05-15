@@ -1,21 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { VertexAI } from '@google-cloud/vertexai';
-import * as fs from 'fs';
-import * as path from 'path';
-
-const credPath = path.join(process.cwd(), 'google-credentials.json');
-
-if (process.env.GOOGLE_CREDENTIALS_JSON) {
-  fs.writeFileSync(credPath, process.env.GOOGLE_CREDENTIALS_JSON);
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
-} 
-
-const vertexAI = new VertexAI({
-  project: process.env.GOOGLE_CLOUD_PROJECT_ID,
-  location: process.env.GOOGLE_CLOUD_REGION,
-});
-
-const model = vertexAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' });
+import { GoogleAuth } from 'google-auth-library';
+import axios from 'axios';
 
 const contextoSistema = `
 debes resumir el texto proporcionado
@@ -24,22 +9,57 @@ debes resumir el texto proporcionado
 export async function POST(req: NextRequest) {
   try {
     const { texto } = await req.json();
+
     if (!texto) {
       return NextResponse.json({ error: 'No se proporcionó texto' }, { status: 400 });
     }
+
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON!);
+
+    const auth = new GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
+
+    const client = await auth.getClient();
+    const tokenResponse = await client.getAccessToken();
+    const token = tokenResponse.token;
+
+    if (!token) {
+      throw new Error('No se pudo obtener el token de acceso.');
+    }
+
     const prompt = `
 ${contextoSistema}
 Usuario: ${texto}
 Asistente:
 `;
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    });
-    const response = await result.response;
-    const respuestaBot = response?.candidates?.[0]?.content?.parts?.[0]?.text || 'No entendí tu solicitud.';
+
+    const response = await axios.post(
+      `https://${process.env.GOOGLE_CLOUD_REGION}-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_CLOUD_PROJECT_ID}/locations/${process.env.GOOGLE_CLOUD_REGION}/publishers/google/models/gemini-2.0-flash-001:generateContent`,
+      {
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }],
+          },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const respuestaBot =
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'No entendí tu solicitud.';
+
     return NextResponse.json({ respuesta: respuestaBot });
   } catch (error) {
-    console.error('Error en la API:', error);
+    console.error('❌ Error al generar contenido:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
